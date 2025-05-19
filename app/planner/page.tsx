@@ -32,19 +32,32 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ImageUpload from "@/app/planner/components/ocr/ImageUpload";
 import ParsedResultEditor from "@/app/planner/components/ocr/ParsedResultEditor";
 import { ParsedOrder } from "@/types/ParsedOrder";
+import { WorkEntry } from "@/types/WorkEntry";
+import { calculateScheduleEntries } from "@/lib/logic/calculateScheduleEntries";
+import GanttChart from "./components/morningtasku/GanttChart";
 
 export default function PlannerPage() {
   const [parsedData, setParsedData] = useState<ParsedOrder[]>([]);
+  const [schedule, setSchedule] = useState<WorkEntry[]>([]); // ScheduleEntry 型でも可
+
+
+  useEffect(() => {
+    const scheduleData = calculateScheduleEntries(parsedData , 9 ,17);
+    setSchedule(scheduleData)
+  },[parsedData])
 
   return (
     <main className="p-4 space-y-4">
       <h1 className="text-xl font-bold">作業予定作成ツール</h1>
       <ImageUpload onParsed={setParsedData} />
       <ParsedResultEditor data={parsedData} setData={setParsedData} />
+      <h2 className="text-lg font-semibold">ガントチャート</h2>
+      <GanttChart data={schedule} />
+    
     </main>
   );
 }

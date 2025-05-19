@@ -1,6 +1,12 @@
 export type ScheduleEntry = {
   department: string;
   category: string;
-  start: number;
+  start: string;
+  end: string;
   duration: number;
+  pieces:number, 
+  people: number, 
+  productivity: string
+
+
 };

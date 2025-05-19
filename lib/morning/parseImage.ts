@@ -39,7 +39,7 @@ export async function parseImage(image: File): Promise<OCRParsedEntry[]> {
   const results: OCRParsedEntry[] = [];
 
   for (const line of lines) {
-    const match = line.match(/^([\u30A0-\u30FFー]+)[^0-9]*([0-9]{1,5})/);
+    const match = line.match(/^([\u30A0-\u30FFー]+)\s+[0-9,]+\s+[0-9,]+\s+([0-9,]+)/);
     if (match) {
       const rawKatakana = match[1];
       const pieces = parseInt(match[2], 10);
