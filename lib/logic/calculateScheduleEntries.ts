@@ -1,39 +1,67 @@
-// /lib/logic/calculateScheduleEntries.ts
+// lib/logic/calculateScheduleEntries.ts
 import { ParsedOrder } from "@/types/ParsedOrder";
 import { ScheduleEntry } from "@/lib/logic/schedule";
-// import { scheduler } from "timers/promises";
-import { minutesToTimeString } from "../utils/timeUtils";
 
-// 開始時刻を基準にカテゴリごとの時間を割り当てる
+const LUNCH_BREAK_START = 11.75; // 11:45
+const LUNCH_BREAK_END = 12.5; // 12:30
+const AFTERNOON_BREAK_START = 14.75; // 14:45
+const AFTERNOON_BREAK_END = 15.0; // 15:00
+
+function applyBreaks(start: number, duration: number): number {
+  let end = start + duration;
+
+  // 昼休憩をまたぐ場合
+  if (start < LUNCH_BREAK_START && end > LUNCH_BREAK_START) {
+    end += LUNCH_BREAK_END - LUNCH_BREAK_START;
+  }
+
+  // 午後休憩をまたぐ場合
+  if (start < AFTERNOON_BREAK_START && end > AFTERNOON_BREAK_START) {
+    end += AFTERNOON_BREAK_END - AFTERNOON_BREAK_START;
+  }
+
+  return end;
+}
+
 export function calculateScheduleEntries(
   parsed: ParsedOrder[],
+  priority: string[],
   startHour: number,
   endHour: number
 ): ScheduleEntry[] {
-  const schedule: ScheduleEntry[] = [];
-
-  const departmentTimeMap: Record<string, number> = {};
-  // let currentHour = startHour;
-
-  for (const entry of parsed) {
-    // const duration = Math.ceil(item.pieces / 300 * 4) / 4; // 300pcs/人時、0.25単位
-       const {department,category,pieces,people,productivity} = entry;
-    // const start = `${Math.floor(currentTime)}:${(currentTime % 1) * 60 === 0 ? "00" : "30"}`;
-    // currentTime += duration;
-    // const end = `${Math.floor(currentTime)}:${(currentTime % 1) * 60 === 0 ? "00" : "30"}`;
-
-   const currentTime = departmentTimeMap[department] ?? startHour * 60;
-
-    const duration = Math.ceil((pieces / 330) * 60); // 330pcs/人時の仮生産性
-    const start = minutesToTimeString(currentTime);
-    const end = minutesToTimeString(currentTime + duration);
-    
-    schedule.push({ department, category, start, end,duration,people,pieces, productivity });
-
-    departmentTimeMap[department] = currentTime + duration;
-    
-  }
+  const sorted = [...parsed].sort((a, b) => {
+    const p1 = priority.indexOf(a.batch || "");
+    const p2 = priority.indexOf(b.batch || "");
+    return p1 - p2;
+  });
   console.log(endHour)
 
-  return schedule;
+  const currentTimeByDept: Record<string, number> = {};
+  const results: ScheduleEntry[] = [];
+
+  for (const item of sorted) {
+    const { department, category, pieces, people, productivity, batch } = item;
+    if (!department || !pieces || !people || !productivity) continue;
+
+    const start = currentTimeByDept[department] ?? startHour;
+    const duration = (pieces / productivity) / people; // 時間（hour）
+    const adjustedEnd = applyBreaks(start, duration);
+
+    results.push({
+      department,
+      category,
+      batch: batch || "",
+      start,
+      end: adjustedEnd,
+      duration,
+      people,
+      pieces,
+      productivity
+
+    });
+
+    currentTimeByDept[department] = adjustedEnd;
+  }
+
+  return results;
 }

@@ -9,3 +9,9 @@ export function minutesToTimeString(minutes: number): string {
   const mins = totalMinutes % 60;
   return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
 }
+
+
+// lib/utils/timeUtils.ts
+export function roundToQuarter(hours: number): number {
+  return Math.ceil(hours * 4) / 4;
+}

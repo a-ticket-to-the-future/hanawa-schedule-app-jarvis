@@ -3,7 +3,8 @@ export type ProductivityRecord = {
   department: string;
   category: string;
   date: string; // "YYYY-MM-DD"
-  value: number; // pcs/hour
+  value: string; // pcs/hour
+  productivity: number 
 };
 
 // types/ocr.ts
