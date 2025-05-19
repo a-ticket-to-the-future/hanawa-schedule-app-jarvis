@@ -1,7 +1,7 @@
 // lib/ocr/calculateWorkTimes.ts
 import { ProductivityRecord } from "@/types/productivity";
 import { EditedCategory } from "@/types/productivity";
-import { ceilToQuarter } from "@/lib/utils/timeUtils";
+import { ceilToQuarter } from "@/types/productivity";
 
 export type ScheduleEntry = {
   department: string;
@@ -51,7 +51,9 @@ function getProductivity(
   department: string,
   category: string
 ): number | undefined {
-  return productivity.find(
+  return Number(
+  productivity.find(
     (p) => p.department === department && p.category === category
-  )?.value;
+  )?.value
+);
 }

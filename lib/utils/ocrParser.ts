@@ -1,6 +1,6 @@
 // lib/utils/ocrParser.ts
 import Tesseract from 'tesseract.js'
-import { batchNameMap } from '../data/batchNameMap'
+import {batchNameMap}  from '@/data/batchNameMap.json'
 
 export async function parseImageToCategories(file: File): Promise<{ category: string; pieces: number }[]> {
   const imageData = await file.arrayBuffer()

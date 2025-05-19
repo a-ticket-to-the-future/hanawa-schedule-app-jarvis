@@ -1,63 +1,36 @@
-// "use client";
-
-// import { useState } from "react";
-// import UploadOCR from "@/app/planner/components/morningtasku/UploadOCR";
-// import ParsedResultEditor from "@/app/planner/components/ocr/ParsedResultEditor";
-// import GanttChart from "@/app/planner/components/morningtasku/GanttChart";
-// import { calculateScheduleEntries } from "@/lib/logic/calculateScheduleEntries";
-// import { WorkEntry } from "@/types/WorkEntry";
-// import { ScheduleEntry } from "@/lib/logic/calculateWorkTimes";
-
-// export default function PlannerPage() {
-//   const [workData, setWorkData] = useState<WorkEntry[]>([]);
-//   const [schedule, setSchedule] = useState<ScheduleEntry[]>([]);
-
-//   const handleParsed = (parsed: WorkEntry[]) => {
-//     console.log(parsed)
-//     setWorkData(parsed);
-//     const scheduleData = calculateScheduleEntries(parsed, 9, 17);
-//     setSchedule(scheduleData);
-//   };
-
-//   return (
-//     <main className="p-4 space-y-4">
-//       <h1 className="text-xl font-bold">作業予定作成ツール</h1>
-//       <UploadOCR onParsed={handleParsed} />
-//       <ParsedResultEditor data={workData} setData={setWorkData} />
-//       <h2 className="text-lg font-semibold">ガントチャート</h2>
-//       <GanttChart data={schedule} />
-//     </main>
-//   );
-// }
-
 "use client";
 
 import { useEffect, useState } from "react";
-import ImageUpload from "@/app/planner/components/ocr/ImageUpload";
+import ExcelUpload from "@/app/planner/components/excel/ExcelUpload";
 import ParsedResultEditor from "@/app/planner/components/ocr/ParsedResultEditor";
+import GanttChart from "@/app/planner/components/morningtasku/GanttChart";
+import PriorityEditor from "@/app/planner/components/scheduler/PriorityEditor";
 import { ParsedOrder } from "@/types/ParsedOrder";
-import { WorkEntry } from "@/types/WorkEntry";
-import { calculateScheduleEntries } from "@/lib/logic/calculateScheduleEntries";
-import GanttChart from "./components/morningtasku/GanttChart";
+import { ScheduleEntry } from "@/lib/logic/schedule";
+import { calculateScheduleWithBreaks } from "@/lib/logic/scheduleWithBreaks";
+
+const DEFAULT_PRIORITY = ["a'", "A当日", "A追加", "AG2", "AG3", "b'", "B当日", "BG2", "BG3"];
 
 export default function PlannerPage() {
   const [parsedData, setParsedData] = useState<ParsedOrder[]>([]);
-  const [schedule, setSchedule] = useState<WorkEntry[]>([]); // ScheduleEntry 型でも可
-
+  const [schedule, setSchedule] = useState<ScheduleEntry[]>([]);
+  const [priority, setPriority] = useState<string[]>(DEFAULT_PRIORITY);
 
   useEffect(() => {
-    const scheduleData = calculateScheduleEntries(parsedData , 9 ,17);
-    setSchedule(scheduleData)
-  },[parsedData])
+    if (parsedData.length === 0) return;
+    const scheduleData = calculateScheduleWithBreaks(parsedData, priority, 9, 17);
+    setSchedule(scheduleData);
+  }, [parsedData, priority]);
 
   return (
     <main className="p-4 space-y-4">
       <h1 className="text-xl font-bold">作業予定作成ツール</h1>
-      <ImageUpload onParsed={setParsedData} />
+
+      <ExcelUpload onParsed={setParsedData} />
       <ParsedResultEditor data={parsedData} setData={setParsedData} />
+      <PriorityEditor value={priority} onChange={setPriority} data={parsedData} setData={setParsedData} />
       <h2 className="text-lg font-semibold">ガントチャート</h2>
       <GanttChart data={schedule} />
-    
     </main>
   );
 }
