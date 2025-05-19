@@ -14,6 +14,8 @@ export default function OCRUploader() {
 
     const { data: { text } } = await Tesseract.recognize(file, "jpn", {
       tessedit_char_whitelist: "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンー",
+      preserve_interword_spaces: "1",
+      user_defined_dpi: "300"
     })
 
     setRawText(text)
