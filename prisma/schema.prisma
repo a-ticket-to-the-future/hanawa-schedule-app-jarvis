@@ -12,7 +12,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  
 }
 
 
@@ -32,4 +32,12 @@ model StaffCount {
   date      DateTime
   count     Int
   createdAt DateTime @default(now())
+}
+
+
+
+model Schedule {
+  date       DateTime    @id
+  data       Json
+  updatedAt  DateTime    @default(now())
 }

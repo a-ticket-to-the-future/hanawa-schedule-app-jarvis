@@ -17,7 +17,8 @@ export async function parseExcel(file: File): Promise<ParsedOrder[]> {
 
       for (let i = 1; i < json.length; i++) {
         const row = json[i];
-        const [department, category, piecesStr,batch] = row;
+        const [ department,category, piecesStr,batchName] = row;
+        // const department = row 
         const productivity = Number(row);
         const people = Number(row)
         if (typeof department === "string" && typeof category === "string" && typeof piecesStr === "number" || typeof piecesStr === "string") {
@@ -25,7 +26,7 @@ export async function parseExcel(file: File): Promise<ParsedOrder[]> {
         //   const people = 
         //   const productivity = 
           if (!isNaN(pieces)) {
-            parsed.push({ department, category, pieces,people,productivity,batch });
+            parsed.push({ department, category, pieces,people,productivity,batchName });
             
           }
           console.log(parsed)

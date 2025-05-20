@@ -1,7 +1,7 @@
 // components/morning/ImageUploader.tsx
 
 import { useState } from "react"
-import { extractCategoryDataFromImage } from "@/lib/morning/parseImage"
+import { parseImage } from "@/lib/morning/parseImage"
 
 export default function ImageUploader() {
   const [result, setResult] = useState<{ category: string; pieces: number }[]>([])
@@ -15,7 +15,7 @@ export default function ImageUploader() {
     const reader = new FileReader()
     reader.onload = async () => {
       const imageData = reader.result as string
-      const parsed = await extractCategoryDataFromImage(imageData)
+      const parsed = await parseImage(imageData)
       setResult(parsed)
       setLoading(false)
     }

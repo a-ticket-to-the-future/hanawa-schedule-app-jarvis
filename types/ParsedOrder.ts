@@ -13,4 +13,7 @@ export type ParsedOrder = {
   batchName: string;
   pieces: number;
   pattern: "a'" | "A当日" | "A追加" | "b'" | "B当日";
+  people:number
+  productivity:number
+  category:string
 };

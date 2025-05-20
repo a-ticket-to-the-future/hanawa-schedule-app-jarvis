@@ -9,7 +9,7 @@ export function convertExcelToParsedOrder(workbook: WorkBook): ParsedOrder[] {
   return json
     .filter(row => row["部署"] && row["カテゴリ"] && row["ピース数"]) // データがある行だけ
     .map((row): ParsedOrder => ({
-      department: String(row["部署"] ?? "").trim(),
+      department: String(row["部署"] ?? "").trim() as "MAS" | "DAS" | "WDA",
       category: String(row["カテゴリ"] ?? "").trim(),
       pieces: Number(row["ピース数"]) || 0,
       batch: String(row["バッチ名"] ?? "").trim(),

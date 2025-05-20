@@ -23,4 +23,5 @@ export type ScheduleEntry = {
   productivity: number; // pcs/h
   startTime: number; // 小数表記 例: 9.5
   endTime: number;   // 小数表記
+  category:string
 };
