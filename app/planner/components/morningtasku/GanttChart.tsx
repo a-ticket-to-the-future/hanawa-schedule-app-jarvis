@@ -1,4 +1,5 @@
 import { ScheduleEntry } from "@/lib/logic/schedule";
+import { formatHourDecimalToTime } from "@/lib/utils/format";
 
 
 
@@ -33,8 +34,8 @@ export default function GanttChart({ data }: { data: ScheduleEntry[] }) {
               <tr key={idx}>
                 <td className="border p-2">{entry.department}</td>
                 <td className="border p-2">{entry.category}</td>
-                <td className="border p-2">{toTimeStr(start)}</td>
-                <td className="border p-2">{toTimeStr(end)}</td>
+                <td>{formatHourDecimalToTime(entry.start)}</td>
+                <td>{formatHourDecimalToTime(entry.end)}</td>
                 <td className="border p-2">
                   <div className="relative h-6 w-full bg-gray-100">
                     <div
