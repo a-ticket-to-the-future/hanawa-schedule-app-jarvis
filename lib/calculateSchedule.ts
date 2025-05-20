@@ -1,5 +1,5 @@
 // lib/schedule/calculateSchedule.ts
-import { ParsedOrder } from '@/types/schedule';
+import { ParsedOrder } from '@/types/ParsedOrder';
 import { productivityMap } from '@/lib/mappings/productivityMap';
 
 const ROUND_UNIT = 0.25; // 15分単位

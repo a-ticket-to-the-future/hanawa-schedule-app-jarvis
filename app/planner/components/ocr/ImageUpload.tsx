@@ -19,6 +19,7 @@ export default function ImageUpload({ onParsed }: { onParsed: (data: ParsedOrder
 
     try {
       const parsed = await parseImage(file);
+      console.log(parsed)
       onParsed(parsed)
       setResult(parsed);
     } catch (error) {

@@ -1,5 +1,5 @@
 // ✅ 修正済：pages/api/staff-count/get.ts
-import { prisma } from "@/lib/prisma/client"
+import { prisma } from "@/lib/db/client"
 import { NextApiRequest, NextApiResponse } from "next"
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
