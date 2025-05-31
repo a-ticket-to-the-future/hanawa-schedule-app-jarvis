@@ -1,4 +1,3 @@
-// app/planner/components/editor/ParsedResultEditor.tsx
 'use client';
 
 import { ParsedOrder } from '@/types/ParsedOrder';

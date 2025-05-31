@@ -1,33 +1,38 @@
-// lib/schedule/calculateSchedule.ts
 import { ParsedOrder } from '@/types/ParsedOrder';
-import { productivityMap } from '@/lib/mappings/productivityMap';
 
 const ROUND_UNIT = 0.25; // 15分単位
 
 export type ScheduledOrder = ParsedOrder & {
-  start: number; // 例: 9.0 = 9:00
-  end: number;   // 小数表記
+  start: number;
+  end: number;
 };
 
 export function calculateSchedule(
   orders: ParsedOrder[],
-  departmentPersonnel: Record<string, number>,
-  workStartTime = 9
+  departmentStartTime: Record<string, number> // 例: { MAS: 9, DAS: 9.25, WDA: 9.5 }
 ): ScheduledOrder[] {
-  let currentTime = workStartTime;
+  const currentTimeMap: Record<string, number> = { ...departmentStartTime };
   const scheduled: ScheduledOrder[] = [];
 
   for (const order of orders) {
-    const productivity = productivityMap[order.department]?.[order.batchName] ?? 250;
-    const personnel = departmentPersonnel[order.department] ?? 1;
-    const rawHours = order.pieces / productivity / personnel;
+    const dept = order.department;
+    const productivity = order.productivity || 1;
+    const people = order.people || 1;
+    const pieces = order.pieces || 0;
 
+    const rawHours = pieces / people / productivity;
     const roundedHours = Math.ceil(rawHours / ROUND_UNIT) * ROUND_UNIT;
-    const start = currentTime;
-    const end = start + roundedHours;
 
-    scheduled.push({ ...order, start, end });
-    currentTime = end;
+    const start = currentTimeMap[dept];
+    const end = +(start + roundedHours).toFixed(2);
+
+    scheduled.push({
+      ...order,
+      start,
+      end,
+    });
+
+    currentTimeMap[dept] = end;
   }
 
   return scheduled;

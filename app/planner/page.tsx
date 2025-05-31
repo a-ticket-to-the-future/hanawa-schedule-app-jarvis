@@ -15,7 +15,7 @@ export default function PlannerPage() {
   const [startTimes, setStartTimes] = useState({ MAS: 9, DAS: 9, WDA: 9 });
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
-  const scheduled = calculateSchedule(orders, personnel, startTimes);
+  const scheduled = calculateSchedule(orders, personnel);
 
   const handleSave = async () => {
     const result = await saveSchedule(date, orders);

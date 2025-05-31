@@ -12,21 +12,20 @@ interface Props {
 
 export default function PriorityEditor({ value, onChange, data, setData }: Props) {
   useEffect(() => {
-  if (!Array.isArray(data) || !setData || !Array.isArray(value)) return;
+    if (!Array.isArray(data) || !setData || !Array.isArray(value)) return;
 
-  // 依存配列に data を入れると無限ループになるので、value のみで判定
-  setData((prev) => {
-    if (!Array.isArray(prev)) return prev;
+    setData((prev: ParsedOrder[]) => {
+      if (!Array.isArray(prev)) return prev;
 
-    const reordered = [...prev].sort((a, b) => {
-      const indexA = value.indexOf(a.batch ?? "");
-      const indexB = value.indexOf(b.batch ?? "");
-      return indexA - indexB;
+      const reordered = [...prev].sort((a, b) => {
+        const indexA = value.indexOf(a.batchName ?? "");
+        const indexB = value.indexOf(b.batchName ?? "");
+        return indexA - indexB;
+      });
+      
+      return reordered;
     });
-
-    return reordered;
-  });
-}, [value]); // ← 🔴ここを value のみに限定
+  }, [value, data, setData]); // ← 🔵 依存配列に明示的に追加
 
   const move = (from: number, to: number) => {
     if (to < 0 || to >= value.length) return;
