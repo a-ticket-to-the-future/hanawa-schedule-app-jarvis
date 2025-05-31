@@ -1,41 +1,33 @@
+import { ParsedOrder } from "@/types/ParsedOrder";
+// import { ScheduledOrder } from "../calculateSchedule";
+
+// ✅ calculateSchedule.ts
+export interface ScheduledOrder extends ParsedOrder {
+  start: number;
+  end: number;
+}
+
 // lib/schedule/calculateSchedule.ts
-import { ParsedOrder } from '@/types/ParsedOrder';
-import { productivityMap } from '@/lib/mappings/productivityMap';
-
-const defaultPersonnel = { MAS: 33, DAS: 16, WDA: 10 };
-
 export function calculateSchedule(
   orders: ParsedOrder[],
-  personnel: Record<'MAS' | 'DAS' | 'WDA', number>,
-  startHour: number
-) {
-  let currentTime = {
-    MAS: startHour,
-    DAS: startHour,
-    WDA: startHour,
-  };
+  startTimes: Record<'MAS' | 'DAS' | 'WDA', number>
+): ScheduledOrder[] {
+  const schedules: ScheduledOrder[] = [];
+  const currentTime = { ...startTimes };
 
-  return orders.map((order) => {
-    const dept = order.department;
-    const people = order.people || personnel[dept] || defaultPersonnel[dept];
-    const productivity =
-      order.productivity ||
-      productivityMap?.[dept]?.[order.batchName] ||
-      1;
-    const pieces = order.pieces || 0;
-    const time = +(pieces / (people * productivity)).toFixed(2);
+  for (const order of orders) {
+    const { department, pieces, people, productivity } = order;
 
-    const start = currentTime[dept];
-    const end = +(start + time);
-    currentTime[dept] = end;
+    const duration = (pieces && people && productivity)
+      ? +(pieces / (people * productivity)).toFixed(2)
+      : 0;
 
-    return {
-      ...order,
-      people,
-      productivity,
-      time,
-      start,
-      end,
-    };
-  });
+    const start = currentTime[department];
+    const end = +(start + duration).toFixed(2);
+
+    schedules.push({ ...order, start, end });
+    currentTime[department] = end;
+  }
+
+  return schedules;
 }

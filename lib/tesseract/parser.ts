@@ -1,39 +1,49 @@
-import { categoryMap } from "@/data/categoryMap"
-import { batchNameMap } from "../mappings/batchNameMap"
+import { categoryMap } from "@/data/categoryMap";
+import { batchNameMap } from "@/lib/mappings/batchNameMap";
+
+export type Department = "MAS" | "DAS" | "WDA";
 
 export type ParsedTask = {
-  department: "MAS" | "DAS" | "WDA"
-  // batchName: string
-  category: string
-  pieces: number
-}
+  department: Department;
+  category: string;
+  pieces: number;
+  batchName?: string;
+};
 
 export function normalizeCategory(raw: string): string {
-  return categoryMap[raw.trim()] || raw.trim()
+  const trimmed = raw.trim();
+  return categoryMap[trimmed] || batchNameMap[trimmed] || trimmed;
 }
 
 export function parseRawText(rawText: string): ParsedTask[] {
   const lines = rawText
     .split("\n")
     .map((line) => line.trim())
-    .filter(Boolean)
+    .filter(Boolean);
 
-  const result: ParsedTask[] = []
+  const result: ParsedTask[] = [];
 
   lines.forEach((line) => {
-    const match = line.match(/(MAS|DAS|WDA)[\s　]*(.+)[\s　]*(\d+)/i)
+    const match = line.match(/(MAS|DAS|WDA)[\s　]*(.+)[\s　]*(\d+)/i);
     if (match) {
-      const [, department, rawCategory, piecesStr,] = match
-      const category = normalizeCategory(rawCategory)
-      const pieces = parseInt(piecesStr)
-      // const batchName = batchNameMap()
-      result.push({ department: department.toUpperCase() as any, 
-        category,
-         pieces,
-        //  batchName, 
-        })
-    }
-  })
+      const [, deptRaw, rawCategory, piecesStr] = match;
 
-  return result
+      const department = deptRaw.toUpperCase() as Department;
+      const pieces = parseInt(piecesStr, 10);
+
+      const normalizedCategory = normalizeCategory(rawCategory);
+      const batchName = Object.entries(batchNameMap).find(
+        ([, value]) => value === normalizedCategory
+      )?.[0] || normalizedCategory;
+
+      result.push({
+        department,
+        category: normalizedCategory,
+        batchName,
+        pieces,
+      });
+    }
+  });
+
+  return result;
 }

@@ -2,6 +2,7 @@
 'use client';
 
 import { ScheduledOrder } from '@/lib/schedule/calculateSchedule';
+import React from 'react';
 
 interface Props {
   data: ScheduledOrder[];
@@ -22,6 +23,12 @@ function isBreak(slot: number): boolean {
 }
 
 export default function ScheduleGrid({ data }: Props) {
+  const grouped = data.reduce<Record<string, ScheduledOrder[]>>((acc, item) => {
+    if (!acc[item.department]) acc[item.department] = [];
+    acc[item.department].push(item);
+    return acc;
+  }, {});
+
   return (
     <div className="overflow-x-auto text-xs border">
       <div className="grid" style={{ gridTemplateColumns: `180px repeat(${totalSlots}, 1fr)` }}>
@@ -38,28 +45,44 @@ export default function ScheduleGrid({ data }: Props) {
           );
         })}
 
-        {/* 各行 */}
-        {data.map((entry, idx) => {
-          const label = `${entry.department} / ${entry.batchName} / ${entry.pattern}`;
-          const start = Math.round((entry.start - startHour) * 4);
-          const end = Math.round((entry.end - startHour) * 4);
-          const rowColor = idx % 2 === 0 ? 'bg-white' : 'bg-gray-50';
-          console.log(data)
-          return (
-            <>
-              <div className={`border-r border-b p-1 font-medium ${rowColor}`}>{label}</div>
-              {[...Array(totalSlots)].map((_, i) => {
-                const inRange = i >= start && i < end;
-                return (
+        {/* 各部署ごとの3段構成 */}
+        {(['MAS', 'DAS', 'WDA'] as const).map((dept) => (
+          grouped[dept]?.map((entry, idx) => {
+            const start = Math.round((entry.start - startHour) * 4);
+            const end = Math.round((entry.end - startHour) * 4);
+            const rowColor = idx % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+            const lineKey = `${dept}-${idx}`;
+
+            return (
+              <React.Fragment key={lineKey}>
+                {[entry.department, entry.batchName, entry.pattern].map((label, i) => (
                   <div
-                    key={`${idx}-${i}`}
-                    className={`border-r border-b h-6 ${isBreak(i) ? 'bg-yellow-100' : inRange ? 'bg-black' : rowColor}`}
-                  ></div>
-                );
-              })}
-            </>
-          );
-        })}
+                    key={`${lineKey}-label-${i}`}
+                    className={`border-r border-b p-1 font-medium ${rowColor}`}
+                  >
+                    {label}
+                  </div>
+                ))}
+                {[...Array(3)].flatMap((_, rowOffset) => (
+                  [...Array(totalSlots)].map((_, col) => {
+                    const inRange = col >= start && col < end;
+                    const bgColor = isBreak(col)
+                      ? 'bg-yellow-100'
+                      : inRange
+                      ? 'bg-black'
+                      : rowColor;
+                    return (
+                      <div
+                        key={`${lineKey}-${rowOffset}-${col}`}
+                        className={`border-r border-b h-6 ${bgColor}`}
+                      />
+                    );
+                  })
+                ))}
+              </React.Fragment>
+            );
+          })
+        ))}
       </div>
     </div>
   );

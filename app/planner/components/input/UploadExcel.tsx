@@ -1,20 +1,15 @@
-// components/input/UploadExcel.tsx
 'use client';
 import * as XLSX from 'xlsx';
 import { ParsedOrder } from '@/types/ParsedOrder';
 import { useState } from 'react';
-
-type ExcelRow = {
-  部署: "MAS" | "DAS" | "WDA";
-  バッチ名: string;
-  ピース数: number;
-  パターン: "a'" | "A当日" | "A追加" | "b'" | "B当日";
-};
-
-
-// ---------- 修正済み UploadExcel.tsx での呼び出し ----------
 import { convertExcelToParsedOrder } from '@/lib/utils/convertExcelToParsedOrder';
 
+type ExcelRow = {
+  部署: 'MAS' | 'DAS' | 'WDA';
+  バッチ名: string;
+  ピース数: number;
+  パターン: "a'" | 'A当日' | 'A追加' | "b'" | 'B当日';
+};
 
 export default function UploadExcel({ onParsed }: {
   onParsed: (data: ParsedOrder[]) => void;
@@ -25,27 +20,15 @@ export default function UploadExcel({ onParsed }: {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    
     setFileName(file.name);
     const data = await file.arrayBuffer();
     const workbook = XLSX.read(data);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(sheet);
-const parsed = convertExcelToParsedOrder(rows,date);
-onParsed(parsed);
 
-    // const rows = XLSX.utils.sheet_to_json<ExcelRow>(sheet);
+    const rows = XLSX.utils.sheet_to_json<ExcelRow>(sheet);
+    const parsed = convertExcelToParsedOrder(rows); // ← date は不要な仕様に統一
 
-    // const parsed: ParsedOrder[] = rows.map(row => ({
-    //   date: new Date().toISOString().split('T')[0],
-    //   department: String(row["部署"] ?? "").trim() as "MAS" | "DAS" | "WDA",
-    //   batchName: row['バッチ名'],
-    //   pieces: Number(row['ピース数']),
-    //   pattern: row['パターン'],
-    //   time:new Date
-    // }));
-
-    onParsed(parsed);
+    onParsed(parsed); // 重複呼び出しを削除
   };
 
   return (
