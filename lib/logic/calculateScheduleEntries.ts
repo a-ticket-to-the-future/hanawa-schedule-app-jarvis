@@ -1,6 +1,8 @@
 // lib/logic/calculateScheduleEntries.ts
 import { ParsedOrder } from "@/types/ParsedOrder";
 import { ScheduleEntry } from "@/lib/logic/schedule";
+// import PeopleInput from "@/app/planner/components/morningtasku/PeopleInput";
+// import { calculateSchedule } from "../calculateSchedule";
 // import { batchNameMap } from "../mappings/batchNameMap";
 
 const LUNCH_BREAK_START = 11.75; // 11:45
@@ -9,19 +11,19 @@ const AFTERNOON_BREAK_START = 14.75; // 14:45
 const AFTERNOON_BREAK_END = 15.0; // 15:00
 
 function applyBreaks(start: number, duration: number): number {
-  let end = start + duration;
+  let endTime = start + duration;
 
   // 昼休憩をまたぐ場合
-  if (start < LUNCH_BREAK_START && end > LUNCH_BREAK_START) {
-    end += LUNCH_BREAK_END - LUNCH_BREAK_START;
+  if (start < LUNCH_BREAK_START && endTime > LUNCH_BREAK_START) {
+    endTime += LUNCH_BREAK_END - LUNCH_BREAK_START;
   }
 
   // 午後休憩をまたぐ場合
-  if (start < AFTERNOON_BREAK_START && end > AFTERNOON_BREAK_START) {
-    end += AFTERNOON_BREAK_END - AFTERNOON_BREAK_START;
+  if (start < AFTERNOON_BREAK_START && endTime > AFTERNOON_BREAK_START) {
+    endTime += AFTERNOON_BREAK_END - AFTERNOON_BREAK_START;
   }
 
-  return end;
+  return endTime;
 }
 
 export function calculateScheduleEntries(
@@ -41,23 +43,25 @@ export function calculateScheduleEntries(
   const results: ScheduleEntry[] = [];
 
   for (const item of sorted) {
-    const { department, category, pieces, people, productivity, batchName } = item;
+    const { department, category, pieces, people, productivity, batchName,personnel } = item;
     if (!department || !pieces || !people || !productivity) continue;
 
-    const start = currentTimeByDept[department] ?? startHour;
+    const startTime = currentTimeByDept[department] ?? startHour;
     const duration = (pieces / productivity) / people; // 時間（hour）
-    const adjustedEnd = applyBreaks(start, duration);
+    const adjustedEnd = applyBreaks(startTime, duration);
+    // const personnel = calculateSchedule
 
     results.push({
       department,
       category,
       batchName,
-      start,
-      end: adjustedEnd,
+      startTime,
+      endTime: adjustedEnd,
       duration,
       people,
       pieces,
       productivity,
+      personnel,
 
     });
 

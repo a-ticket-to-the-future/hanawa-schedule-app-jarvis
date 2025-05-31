@@ -1,111 +1,83 @@
-// components/editor/ParsedResultEditor.tsx
+// app/planner/components/editor/ParsedResultEditor.tsx
 'use client';
+
 import { ParsedOrder } from '@/types/ParsedOrder';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function ParsedResultEditor({ data, onUpdate }: {
   data: ParsedOrder[];
   onUpdate: (updated: ParsedOrder[]) => void;
 }) {
-  const [entries, setEntries] = useState<ParsedOrder[]>([]);
+  const [entries, setEntries] = useState<ParsedOrder[]>(data);
 
   useEffect(() => {
     setEntries(data);
   }, [data]);
 
-  const handleChange = (i: number, key: keyof ParsedOrder, value: string | number) => {
+  const handleChange = (index: number, key: keyof ParsedOrder, value: string | number) => {
     const updated = [...entries];
-    updated[i] = { ...updated[i], [key]: value };
-    setEntries(updated);
-    onUpdate(updated);
-  };
+    const entry = { ...updated[index], [key]: value };
 
-  const move = (from: number, to: number) => {
-    const updated = [...entries];
-    const [moved] = updated.splice(from, 1);
-    updated.splice(to, 0, moved);
+    // 再計算: 作業時間 = ピース数 / 人数 / 生産性
+    const pieces = Number(entry.pieces);
+    const people = Number(entry.people);
+    const productivity = Number(entry.productivity);
+    const time = (pieces && people && productivity) ? +(pieces / (people * productivity)).toFixed(2) : 0;
+
+    updated[index] = { ...entry, time };
     setEntries(updated);
     onUpdate(updated);
   };
 
   return (
-    <table className="table-auto w-full text-sm border">
-      <thead>
-        <tr>
-          <th>日付</th><th>部署</th><th>パターン</th><th>バッチ名</th><th>ピース数</th><th>操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        {entries.map((entry, i) => (
-          <tr key={i} className="border-t">
-            <td>{entry.date}</td>
-            <td><input value={entry.department} onChange={e => handleChange(i, 'department', e.target.value)} className="border" /></td>
-            <td><input value={entry.pattern} onChange={e => handleChange(i, 'pattern', e.target.value)} className="border" /></td>
-            <td><input value={entry.batchName} onChange={e => handleChange(i, 'batchName', e.target.value)} className="border" /></td>
-            <td><input type="number" value={entry.pieces} onChange={e => handleChange(i, 'pieces', +e.target.value)} className="border w-24" /></td>
-            <td>
-              <button onClick={() => move(i, i - 1)} disabled={i === 0}>↑</button>
-              <button onClick={() => move(i, i + 1)} disabled={i === entries.length - 1}>↓</button>
-            </td>
+    <div className="overflow-x-auto">
+      <table className="table-auto border text-xs w-full">
+        <thead>
+          <tr className="bg-gray-100">
+            <th className="border p-1">部署</th>
+            <th className="border p-1">パターン</th>
+            <th className="border p-1">バッチ名</th>
+            <th className="border p-1">ピース数</th>
+            <th className="border p-1">人数</th>
+            <th className="border p-1">生産性</th>
+            <th className="border p-1">作業時間</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {entries.map((entry, i) => (
+            <tr key={i} className="border-t">
+              <td className="border p-1">{entry.department}</td>
+              <td className="border p-1">{entry.pattern}</td>
+              <td className="border p-1">{entry.batchName}</td>
+              <td className="border p-1">
+                <input
+                  type="number"
+                  value={entry.pieces}
+                  onChange={e => handleChange(i, 'pieces', +e.target.value)}
+                  className="border w-20 px-1"
+                />
+              </td>
+              <td className="border p-1">
+                <input
+                  type="number"
+                  value={entry.people}
+                  onChange={e => handleChange(i, 'people', +e.target.value)}
+                  className="border w-16 px-1"
+                />
+              </td>
+              <td className="border p-1">
+                <input
+                  type="number"
+                  value={entry.productivity}
+                  onChange={e => handleChange(i, 'productivity', +e.target.value)}
+                  className="border w-16 px-1"
+                />
+              </td>
+              <td className="border p-1 text-center">{entry.time?.toFixed(2)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
-
-
-
-//↓一応、エラーなかった
-
-// // components/editor/ParsedResultEditor.tsx
-// 'use client';
-// import { ParsedOrder } from '@/types/ParsedOrder';
-// import { useState } from 'react';
-
-// export default function ParsedResultEditor({ data, onUpdate }: {
-//   data: ParsedOrder[];
-//   onUpdate: (updated: ParsedOrder[]) => void;
-// }) {
-//   const [entries, setEntries] = useState(data);
-
-//   const handleChange = (i: number, key: keyof ParsedOrder, value: string | number) => {
-//     const updated = [...entries];
-//     updated[i] = { ...updated[i], [key]: value };
-//     setEntries(updated);
-//     onUpdate(updated);
-//   };
-
-//   const move = (from: number, to: number) => {
-//     const updated = [...entries];
-//     const [moved] = updated.splice(from, 1);
-//     updated.splice(to, 0, moved);
-//     setEntries(updated);
-//     onUpdate(updated);
-//   };
-
-//   return (
-//     <table className="table-auto w-full text-sm border">
-//       <thead>
-//         <tr>
-//           <th>日付</th><th>部署</th><th>パターン</th><th>バッチ名</th><th>ピース数</th><th>操作</th>
-//         </tr>
-//       </thead>
-//       <tbody>
-//         {entries.map((entry, i) => (
-//           <tr key={i} className="border-t">
-//             <td>{entry.date}</td>
-//             <td><input value={entry.department} onChange={e => handleChange(i, 'department', e.target.value)} className="border" /></td>
-//             <td><input value={entry.pattern} onChange={e => handleChange(i, 'pattern', e.target.value)} className="border" /></td>
-//             <td><input value={entry.batchName} onChange={e => handleChange(i, 'batchName', e.target.value)} className="border" /></td>
-//             <td><input type="number" value={entry.pieces} onChange={e => handleChange(i, 'pieces', +e.target.value)} className="border w-24" /></td>
-//             <td>
-//               <button onClick={() => move(i, i - 1)} disabled={i === 0}>↑</button>
-//               <button onClick={() => move(i, i + 1)} disabled={i === entries.length - 1}>↓</button>
-//             </td>
-//           </tr>
-//         ))}
-//       </tbody>
-//     </table>
-//   );
-// }

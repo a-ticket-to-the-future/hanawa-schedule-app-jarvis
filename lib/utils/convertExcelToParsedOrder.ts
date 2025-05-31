@@ -1,19 +1,26 @@
 // lib/utils/convertExcelToParsedOrder.ts
-import { ParsedOrder } from "@/types/ParsedOrder";
-import { utils, WorkBook } from "xlsx";
+import { ParsedOrder } from '@/types/ParsedOrder';
+import { batchNameMap } from '@/lib/mappings/batchNameMap';
+import { productivityMap } from '@/lib/mappings/productivityMap';
 
-export function convertExcelToParsedOrder(workbook: WorkBook): ParsedOrder[] {
-  const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  const json = utils.sheet_to_json<Record<string, any>>(sheet, { defval: "" });
-    console.log(json)
-  return json
-    .filter(row => row["部署"] && row["カテゴリ"] && row["ピース数"]) // データがある行だけ
-    .map((row): ParsedOrder => ({
-      department: String(row["部署"] ?? "").trim() as "MAS" | "DAS" | "WDA",
-      category: String(row["カテゴリ"] ?? "").trim(),
-      pieces: Number(row["ピース数"]) || 0,
-      batch: String(row["バッチ名"] ?? "").trim(),
-      people: Number(row["人数"]) || 0,
-      productivity: Number(row["生産性"]) || 0,
-    }));
+export function convertExcelToParsedOrder(rows: any[]): ParsedOrder[] {
+  return rows.map((row) => {
+    const rawBatch = String(row['バッチ名'] || '').trim();
+    const category = batchNameMap[rawBatch] || rawBatch;
+    const productivity = productivityMap[category] || 20;
+    const department = row['部署']?.trim();
+    const personnel = ""
+    console.log(personnel)
+
+    return {
+      date: new Date().toISOString().split('T')[0],
+      department,
+      pattern: row['パターン'],
+      batchName: rawBatch,
+      category,
+      pieces: Number(row['ピース数'] || 0),
+      people: 0, // 初期は0としておき後から反映
+      productivity,
+    };
+  });
 }

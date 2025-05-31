@@ -17,6 +17,7 @@ export async function parseExcel(file: File): Promise<ParsedOrder[]> {
 
       for (let i = 1; i < json.length; i++) {
         const row = json[i];
+        console.log(row)
         const [ department,category, piecesStr,batchName] = row;
         // const department = row 
         const productivity = Number(row);
