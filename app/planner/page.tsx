@@ -1,4 +1,3 @@
-// app/planner/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -12,13 +11,15 @@ import { ParsedOrder } from '@/types/ParsedOrder';
 
 export default function PlannerPage() {
   const [orders, setOrders] = useState<ParsedOrder[]>([]);
-  const [personnel, setPersonnel] = useState({ MAS: 3, DAS: 3, WDA: 2 });
+  const [personnel, setPersonnel] = useState({ MAS: 33, DAS: 16, WDA: 10 });
+  const [startTimes, setStartTimes] = useState({ MAS: 9, DAS: 9, WDA: 9 });
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
-  const scheduled = calculateSchedule(orders, personnel, 9);
+  const scheduled = calculateSchedule(orders, personnel, startTimes);
 
   const handleSave = async () => {
-    await saveSchedule(date, orders);
+    const result = await saveSchedule(date, orders);
+    console.log(result);
     alert('保存完了');
   };
 
@@ -49,18 +50,34 @@ export default function PlannerPage() {
 
       <ParsedResultEditor data={orders} onUpdate={setOrders} />
 
-      <div className="flex gap-4">
-        {(['MAS', 'DAS', 'WDA'] as const).map((dep) => (
-          <label key={dep}>
-            {dep}
-            <input
-              type="number"
-              value={personnel[dep]}
-              onChange={(e) => setPersonnel({ ...personnel, [dep]: Number(e.target.value) })}
-              className="ml-2 border w-16"
-            />
-          </label>
-        ))}
+      <div className="flex flex-col gap-4">
+        <div className="flex gap-4">
+          {(['MAS', 'DAS', 'WDA'] as const).map((dep) => (
+            <label key={dep} className="flex flex-col">
+              {dep}人員
+              <input
+                type="number"
+                value={personnel[dep]}
+                onChange={(e) => setPersonnel({ ...personnel, [dep]: Number(e.target.value) })}
+                className="border w-24"
+              />
+            </label>
+          ))}
+        </div>
+        <div className="flex gap-4">
+          {(['MAS', 'DAS', 'WDA'] as const).map((dep) => (
+            <label key={dep} className="flex flex-col">
+              {dep}開始時間
+              <input
+                type="number"
+                step={0.25}
+                value={startTimes[dep]}
+                onChange={(e) => setStartTimes({ ...startTimes, [dep]: Number(e.target.value) })}
+                className="border w-24"
+              />
+            </label>
+          ))}
+        </div>
       </div>
 
       <ScheduleGrid data={scheduled} />

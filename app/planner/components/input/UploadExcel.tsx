@@ -12,6 +12,8 @@ type ExcelRow = {
 };
 
 
+// ---------- 修正済み UploadExcel.tsx での呼び出し ----------
+import { convertExcelToParsedOrder } from '@/lib/utils/convertExcelToParsedOrder';
 
 
 export default function UploadExcel({ onParsed }: {
@@ -28,15 +30,20 @@ export default function UploadExcel({ onParsed }: {
     const data = await file.arrayBuffer();
     const workbook = XLSX.read(data);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json<ExcelRow>(sheet);
+    const rows = XLSX.utils.sheet_to_json(sheet);
+const parsed = convertExcelToParsedOrder(rows,date);
+onParsed(parsed);
 
-    const parsed: ParsedOrder[] = rows.map(row => ({
-      date: new Date().toISOString().split('T')[0],
-      department: row['部署'],
-      batchName: row['バッチ名'],
-      pieces: Number(row['ピース数']),
-      pattern: row['パターン'],
-    }));
+    // const rows = XLSX.utils.sheet_to_json<ExcelRow>(sheet);
+
+    // const parsed: ParsedOrder[] = rows.map(row => ({
+    //   date: new Date().toISOString().split('T')[0],
+    //   department: String(row["部署"] ?? "").trim() as "MAS" | "DAS" | "WDA",
+    //   batchName: row['バッチ名'],
+    //   pieces: Number(row['ピース数']),
+    //   pattern: row['パターン'],
+    //   time:new Date
+    // }));
 
     onParsed(parsed);
   };
