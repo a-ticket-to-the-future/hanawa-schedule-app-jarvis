@@ -13,6 +13,7 @@ export const productivityMap: Record<string, Record<string, number>> = {
     靴下: 385,
     パジャマ: 310,
     新生児: 290,
+    
   },
   DAS: {
     男児: 400,
