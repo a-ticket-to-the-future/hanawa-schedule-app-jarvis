@@ -7,7 +7,7 @@ interface Props {
   value: string[];
   onChange: (newOrder: string[]) => void;
   data?: ParsedOrder[];
-  setData?: (data: ParsedOrder[]) => void;
+  setData?: React.Dispatch<React.SetStateAction<ParsedOrder[]>>;
 }
 
 export default function PriorityEditor({ value, onChange, data, setData }: Props) {

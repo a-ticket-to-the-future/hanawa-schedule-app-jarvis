@@ -7,8 +7,10 @@ import { convertExcelToParsedOrder } from '@/lib/utils/convertExcelToParsedOrder
 type ExcelRow = {
   部署: 'MAS' | 'DAS' | 'WDA';
   バッチ名: string;
-  ピース数: number;
+  ピース: number;
   パターン: "a'" | 'A当日' | 'A追加' | "b'" | 'B当日';
+  生産性:number,
+  人数:number
 };
 
 export default function UploadExcel({ onParsed }: {

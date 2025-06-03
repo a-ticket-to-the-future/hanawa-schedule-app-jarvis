@@ -1,82 +1,83 @@
 'use client';
 
+import React from 'react';
+import { Input } from '@/app/planner/components/ui/input';
 import { ParsedOrder } from '@/types/ParsedOrder';
-import { useState, useEffect } from 'react';
 
-export default function ParsedResultEditor({ data, onUpdate }: {
+interface Props {
   data: ParsedOrder[];
-  onUpdate: (updated: ParsedOrder[]) => void;
-}) {
-  const [entries, setEntries] = useState<ParsedOrder[]>(data);
+  onUpdate: (data: ParsedOrder[]) => void;
+  personnel: Record<string, number>;
+  setPersonnel: (key: string, value: number) => void;
+  startTimes: Record<string, number[]>;
+  setStartTimes: (dept: string, index: number, value: number) => void;
+}
 
-  useEffect(() => {
-    setEntries(data);
-  }, [data]);
+export default function ParsedResultEditor({ data, onUpdate, personnel, setPersonnel, startTimes, setStartTimes }: Props) {
+  const handleChange = (index: number, field: keyof ParsedOrder, value: string | number) => {
+    const updated = [...data];
 
-  const handleChange = (index: number, key: keyof ParsedOrder, value: string | number) => {
-    const updated = [...entries];
-    const entry = { ...updated[index], [key]: value };
+    console.log(personnel,setPersonnel,startTimes,setStartTimes)
 
-    // 再計算: 作業時間 = ピース数 / 人数 / 生産性
-    const pieces = Number(entry.pieces);
-    const people = Number(entry.people);
-    const productivity = Number(entry.productivity);
-    const time = (pieces && people && productivity) ? +(pieces / (people * productivity)).toFixed(2) : 0;
+    if (field === 'pieces' || field === 'people' || field === 'productivity' || field === 'line') {
+      updated[index][field] = Number(value);
+    } else {
+      updated[index][field] = String(value);
+    }
 
-    updated[index] = { ...entry, time };
-    setEntries(updated);
+    // 作業時間を再計算
+    const { pieces, people, productivity } = updated[index];
+    if (pieces && people && productivity) {
+      updated[index].time = +(pieces / (people * productivity)).toFixed(2);
+    } else {
+      updated[index].time = 0;
+    }
+
     onUpdate(updated);
   };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="table-auto border text-xs w-full">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-1">部署</th>
-            <th className="border p-1">パターン</th>
-            <th className="border p-1">バッチ名</th>
-            <th className="border p-1">ピース数</th>
-            <th className="border p-1">人数</th>
-            <th className="border p-1">生産性</th>
-            <th className="border p-1">作業時間</th>
+    <table className="w-full table-fixed border border-collapse text-sm">
+      <thead>
+        <tr className="bg-gray-100">
+          <th className="border px-1">部署</th>
+          <th className="border px-1">パターン</th>
+          <th className="border px-1">バッチ名</th>
+          <th className="border px-1">ピース数</th>
+          <th className="border px-1">人数</th>
+          <th className="border px-1">生産性</th>
+          <th className="border px-1">ライン</th>
+          <th className="border px-1">作業時間</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((entry, i) => (
+          <tr key={i}>
+            <td className="border px-1">
+              <Input value={entry.department || ''} onChange={(e) => handleChange(i, 'department', e.target.value)} className="w-20" />
+            </td>
+            <td className="border px-1">
+              <Input value={entry.pattern || ''} onChange={(e) => handleChange(i, 'pattern', e.target.value)} className="w-20" />
+            </td>
+            <td className="border px-1">
+              <Input value={entry.batchName || ''} onChange={(e) => handleChange(i, 'batchName', e.target.value)} className="w-32" />
+            </td>
+            <td className="border px-1">
+              <Input type="number" value={entry.pieces ?? ''} onChange={(e) => handleChange(i, 'pieces', e.target.value)} className="w-20" />
+            </td>
+            <td className="border px-1">
+              <Input type="number" value={entry.people ?? ''} onChange={(e) => handleChange(i, 'people', e.target.value)} className="w-16" />
+            </td>
+            <td className="border px-1">
+              <Input type="number" value={entry.productivity ?? ''} onChange={(e) => handleChange(i, 'productivity', e.target.value)} className="w-16" />
+            </td>
+            <td className="border px-1">
+              <Input type="number" value={entry.line ?? 0} onChange={(e) => handleChange(i, 'line', e.target.value)} className="w-12" min={0} />
+            </td>
+            <td className="border px-1 text-center">{entry.time?.toFixed(2)}</td>
           </tr>
-        </thead>
-        <tbody>
-          {entries.map((entry, i) => (
-            <tr key={i} className="border-t">
-              <td className="border p-1">{entry.department}</td>
-              <td className="border p-1">{entry.pattern}</td>
-              <td className="border p-1">{entry.batchName}</td>
-              <td className="border p-1">
-                <input
-                  type="number"
-                  value={entry.pieces}
-                  onChange={e => handleChange(i, 'pieces', +e.target.value)}
-                  className="border w-20 px-1"
-                />
-              </td>
-              <td className="border p-1">
-                <input
-                  type="number"
-                  value={entry.people}
-                  onChange={e => handleChange(i, 'people', +e.target.value)}
-                  className="border w-16 px-1"
-                />
-              </td>
-              <td className="border p-1">
-                <input
-                  type="number"
-                  value={entry.productivity}
-                  onChange={e => handleChange(i, 'productivity', +e.target.value)}
-                  className="border w-16 px-1"
-                />
-              </td>
-              <td className="border p-1 text-center">{entry.time?.toFixed(2)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </tbody>
+    </table>
   );
 }
