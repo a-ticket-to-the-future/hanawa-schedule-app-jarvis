@@ -49,6 +49,7 @@ export async function parseExcel(file: File): Promise<ParsedOrder[]> {
           productivity,
           time,
           personnel: people,
+          line:0,
         });
       }
 

@@ -1,21 +1,47 @@
+// types/ParsedOrder.ts
+
+export type Department = 'MAS' | 'DAS' | 'WDA';
+export type Pattern = "a'" | 'A当日' | 'A追加' | "b'" | 'B当日';
+
 export type ParsedOrder = {
   date: string;
   department: Department;
   pattern: Pattern;
   batchName: string;
+  category: string;
   pieces: number;
   people: number;
   productivity: number;
-  category: string;
-  time?: number ;
-  personnel?: number; // オプション扱いにし、使う際は明示的に使用
+  line: number; // DAS1, DAS2 などを識別
+  time?: number; // 作業時間
+  personnel?:number;
+};
+
+export type ScheduledOrder = ParsedOrder & {
+  start: number;
+  end: number;
 };
 
 
+// export type ParsedOrder = {
+//   date: string;
+//   department: Department;
+//   pattern: Pattern;
+//   batchName: string;
+//   pieces: number;
+//   people: number;
+//   productivity: number;
+//   category: string;
+//   time?: number ;
+//   personnel?: number; // オプション扱いにし、使う際は明示的に使用
+//   line?:number
+// };
 
-// // types/ParsedOrder.ts
-export type Department = 'MAS' | 'DAS' | 'WDA';
-export type Pattern = "a'" | 'A当日' | 'A追加' | "b'" | 'B当日';
+
+
+// // // types/ParsedOrder.ts
+// export type Department = 'MAS' | 'DAS' | 'WDA';
+// export type Pattern = "a'" | 'A当日' | 'A追加' | "b'" | 'B当日';
 
 // export type ParsedOrder = {
 //   date: string;
