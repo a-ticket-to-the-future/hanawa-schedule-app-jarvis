@@ -13,7 +13,7 @@ const DEFAULT_PERSONNEL: Record<Department, number> = {
 
 
 type ExcelRow = {
-  部署: string;
+  部門: string;
   バッチ名: string;
   ピース: number;
   パターン: string;
@@ -38,7 +38,7 @@ export function convertExcelToParsedOrder(rows:ExcelRow[]): ParsedOrder[] {
   console.log(rows)
 
   return rows.map((row,) => {
-    const rawDept = (row['部署'] || '').trim() as Department;
+    const rawDept = (row['部門'] || '').trim() as Department;
     const rawPattern = (row['パターン'] || '').trim() as Pattern;
     const rawBatch = String(row['バッチ名'] || '').trim();
     const category = normalizeBatchName(rawBatch);

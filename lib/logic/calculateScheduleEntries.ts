@@ -48,6 +48,7 @@ export function calculateScheduleEntries(
       people,
       productivity,
       personnel: rawPersonnel,
+      
     } = item;
 
     // 型安全なチェック

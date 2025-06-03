@@ -24,6 +24,7 @@ export const productivityMap: Record<string, Record<string, number>> = {
     MA: 210,
     不定形: 180,
     レインランチ: 230,
+    消耗品: 260,
   },
   WDA: {
     男児: 120,
