@@ -4,7 +4,7 @@ import { convertExcelToParsedOrder } from '@/lib/utils/convertExcelToParsedOrder
 import { ParsedOrder } from '@/types/ParsedOrder';
 
 type ExcelRow = {
-  部署: 'MAS' | 'DAS' | 'WDA';
+  部門: 'MAS' | 'DAS' | 'WDA';
   バッチ名: string;
   ピース: number;
   パターン: "a'" | 'A当日' | 'A追加' | "b'" | 'B当日';

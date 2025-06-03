@@ -25,5 +25,6 @@ export type ScheduleEntry = {
   endTime: number;   // 小数表記
   category:string;
   duration:number;
-  people:number
+  people:number;
+  
 };
