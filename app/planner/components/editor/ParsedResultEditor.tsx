@@ -35,6 +35,10 @@ const ParsedResultEditor: FC<Props> = ({ data, onUpdate, onAddRow, onDeleteRow }
             <th>バッチ名</th>
             <th>アイテム</th>
             <th>ピース</th>
+            <th>人数</th>
+            <th>生産性</th>
+            <th>ライン</th>
+            <th>作業時間</th>
             <th>削除</th>
           </tr>
         </thead>
@@ -74,6 +78,38 @@ const ParsedResultEditor: FC<Props> = ({ data, onUpdate, onAddRow, onDeleteRow }
                   type="number"
                   value={entry.pieces}
                   onChange={(e) => handleFieldChange(index, 'pieces', Number(e.target.value))}
+                  className="border w-full px-1"
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  value={entry.people}
+                  onChange={(e) => handleFieldChange(index, 'people', Number(e.target.value))}
+                  className="border w-full px-1"
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  value={entry.productivity}
+                  onChange={(e) => handleFieldChange(index, 'productivity', Number(e.target.value))}
+                  className="border w-full px-1"
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  value={entry.line}
+                  onChange={(e) => handleFieldChange(index, 'line', Number(e.target.value))}
+                  className="border w-full px-1"
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  value={entry.time}
+                  onChange={(e) => handleFieldChange(index, 'time', Number(e.target.value))}
                   className="border w-full px-1"
                 />
               </td>
