@@ -21,6 +21,17 @@ const ParsedResultEditor: FC<Props> = ({ data, onUpdate, onAddRow, onDeleteRow }
     onUpdate(updated);
   };
 
+  const moveRow = (index: number, direction: number) => {
+  const newIndex = index + direction;
+  if (newIndex < 0 || newIndex >= data.length) return;
+
+  const updated = [...data];
+  const [moved] = updated.splice(index, 1);
+  updated.splice(newIndex, 0, moved);
+
+  onUpdate(updated);
+};
+
   const handleAdd = (dept: string) => {
     onAddRow(dept);
   };
@@ -39,6 +50,7 @@ const ParsedResultEditor: FC<Props> = ({ data, onUpdate, onAddRow, onDeleteRow }
             <th>生産性</th>
             <th>ライン</th>
             <th>作業時間</th>
+            <th>作業順序</th>
             <th>削除</th>
           </tr>
         </thead>
@@ -113,6 +125,20 @@ const ParsedResultEditor: FC<Props> = ({ data, onUpdate, onAddRow, onDeleteRow }
                   className="border w-full px-1"
                 />
               </td>
+              <td className="flex space-x-1">
+              <button
+                onClick={() => moveRow(index, -1)}
+                className="bg-blue-500 text-white px-2 py-1 rounded"
+              >
+                ↑
+              </button>
+              <button
+                onClick={() => moveRow(index, 1)}
+                className="bg-red-500 text-white px-2 py-1 rounded"
+              >
+                ↓
+              </button>
+            </td>
               <td>
                 <button
                   onClick={() => onDeleteRow(index)}
