@@ -12,14 +12,14 @@ import ExcelUpload from '@/app/planner/components/input/UploadExcel';
 import ParsedResultEditor from './components/editor/ParsedResultEditor';
 import DepartmentLineEditor from '@/app/planner/components/planner/DepartmentLineEditor';
 import ScheduleGrid from '@/app/planner/printable/ScheduleGrid';
-import PriorityEditor from '@/app/planner/components/scheduler/PriorityEditor';
+// import PriorityEditor from '@/app/planner/components/scheduler/PriorityEditor';
 
 export default function PlannerPage() {
   const [parsedOrders, setParsedOrders] = useState<ParsedOrder[]>([]);
   const [personnel, setPersonnel] = useState<Record<string, number>>({});
   const [startTimes, setStartTimes] = useState<Record<string, number[]>>({});
   const [scheduled, setScheduled] = useState<ScheduledOrder[]>([]);
-  const [priorityMap, setPriorityMap] = useState<Record<string, string[]>>({});
+  // const [priorityMap, setPriorityMap] = useState<Record<string, string[]>>({});
   const [showDowntime, setShowDowntime] = useState(false);
 
   useEffect(() => {
@@ -27,11 +27,13 @@ export default function PlannerPage() {
       parsedOrders,
       personnel,
       startTimes,
-      priorityMap,
+      // priorityMap,
+      {},
       showDowntime
     );
     setScheduled(result);
-  }, [parsedOrders, personnel, startTimes, priorityMap, showDowntime]);
+  }, [parsedOrders, personnel, startTimes, showDowntime]);
+  console.log(showDowntime)
 
   const handleAddRow = (department: string) => {
     const newRow: ParsedOrder = {
@@ -88,13 +90,23 @@ export default function PlannerPage() {
         }}
       />
 
-      <PriorityEditor
-        department="DAS"
-        value={priorityMap['DAS'] ?? []}
-        onChange={(updated) =>
-          setPriorityMap((prev) => ({ ...prev, DAS: updated }))
-        }
-      />
+      <main className="space-y-6 p-4">
+  {/* ...他のコンポーネント */}
+
+  {/* {(['MAS', 'DAS', 'WDA'] as const).map((dept) => (
+    // 
+  ))} */}
+  {/* <PriorityEditor
+      key={dept}
+      department={dept}
+      value={priorityMap[dept] ?? []}
+      onChange={(updated) =>
+        setPriorityMap((prev) => ({ ...prev, [dept]: updated }))
+      }
+    /> */}
+
+  {/* ...他のコンポーネント */}
+</main>
 
       <button
         onClick={() => setShowDowntime((prev) => !prev)}
