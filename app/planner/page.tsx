@@ -13,6 +13,7 @@ import ParsedResultEditor from './components/editor/ParsedResultEditor';
 import DepartmentLineEditor from '@/app/planner/components/planner/DepartmentLineEditor';
 import ScheduleGrid from '@/app/planner/printable/ScheduleGrid';
 // import PriorityEditor from '@/app/planner/components/scheduler/PriorityEditor';
+import { useMemo } from 'react';
 
 export default function PlannerPage() {
   const [parsedOrders, setParsedOrders] = useState<ParsedOrder[]>([]);
@@ -55,6 +56,24 @@ export default function PlannerPage() {
   const onDeleteRow = (index: number) => {
     setParsedOrders((prev) => prev.filter((_, i) => i !== index));
   };
+
+  
+
+// 中略...
+
+const departmentTotals = useMemo(() => {
+  const totals: Record<string, number> = { MAS: 0, DAS: 0, WDA: 0 };
+  for (const entry of scheduled) {
+    if (totals[entry.department] !== undefined) {
+      totals[entry.department] += entry.time ?? 0;
+    }
+  }
+  return totals;
+}, [scheduled]);
+
+const overallTotal = useMemo(() => {
+  return scheduled.reduce((sum, entry) => sum + (entry.time ?? 0), 0);
+}, [scheduled]);
 
   return (
     <main className="space-y-6 p-4">
@@ -107,6 +126,12 @@ export default function PlannerPage() {
 
   {/* ...他のコンポーネント */}
 </main>
+<div className="space-y-2 text-sm font-medium">
+  <div>🟦 <strong>MAS 合計作業時間:</strong> {departmentTotals.MAS.toFixed(2)} 時間</div>
+  <div>🟩 <strong>DAS 合計作業時間:</strong> {departmentTotals.DAS.toFixed(2)} 時間</div>
+  <div>🟧 <strong>WDA 合計作業時間:</strong> {departmentTotals.WDA.toFixed(2)} 時間</div>
+  <div className="mt-2 text-base">🟥 <strong>全体合計:</strong> {overallTotal.toFixed(2)} 時間</div>
+</div>
 
       <button
         onClick={() => setShowDowntime((prev) => !prev)}
