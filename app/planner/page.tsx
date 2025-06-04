@@ -8,7 +8,7 @@ import {
   Pattern,
 } from '@/types/ParsedOrder';
 import { calculateMultiLineSchedule } from '@/lib/schedule/calculateMultiLineSchedule';
-import ExcelUpload from '@/app/planner/components/excel/ExcelUpload';
+import ExcelUpload from '@/app/planner/components/input/UploadExcel';
 import ParsedResultEditor from './components/editor/ParsedResultEditor';
 import DepartmentLineEditor from '@/app/planner/components/planner/DepartmentLineEditor';
 import ScheduleGrid from '@/app/planner/printable/ScheduleGrid';
@@ -65,6 +65,7 @@ export default function PlannerPage() {
         personnel={personnel}
         setPersonnel={(key: string, value: number) =>
           setPersonnel((prev) => ({ ...prev, [key]: value }))
+          
         }
         startTimes={startTimes}
         setStartTimes={(dept: string, index: number, value: number) => {
