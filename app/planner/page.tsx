@@ -1,47 +1,57 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ParsedOrder } from '@/types/ParsedOrder';
-import { ScheduledOrder } from '@/types/ParsedOrder';
+import {
+  ParsedOrder,
+  ScheduledOrder,
+  Department,
+  Pattern,
+} from '@/types/ParsedOrder';
 import { calculateMultiLineSchedule } from '@/lib/schedule/calculateMultiLineSchedule';
 import ExcelUpload from '@/app/planner/components/excel/ExcelUpload';
 import ParsedResultEditor from './components/editor/ParsedResultEditor';
 import DepartmentLineEditor from '@/app/planner/components/planner/DepartmentLineEditor';
 import ScheduleGrid from '@/app/planner/printable/ScheduleGrid';
+import PriorityEditor from '@/app/planner/components/scheduler/PriorityEditor';
 
 export default function PlannerPage() {
   const [parsedOrders, setParsedOrders] = useState<ParsedOrder[]>([]);
-  const [personnel, setPersonnel] = useState<Record<string, number>>({
-    MAS1: 33,
-    DAS1: 8,
-    DAS2: 8,
-    WDA1: 10,
-    WDA2: 0,
-  });
-  const [startTimes, setStartTimes] = useState<Record<string, number[]>>({
-    MAS: [9],
-    DAS: [9, 9],
-    WDA: [9, 9],
-  });
+  const [personnel, setPersonnel] = useState<Record<string, number>>({});
+  const [startTimes, setStartTimes] = useState<Record<string, number[]>>({});
   const [scheduled, setScheduled] = useState<ScheduledOrder[]>([]);
+  const [priorityMap, setPriorityMap] = useState<Record<string, string[]>>({});
+  const [showDowntime, setShowDowntime] = useState(false);
 
   useEffect(() => {
-    const result = calculateMultiLineSchedule(parsedOrders, personnel, startTimes);
+    const result = calculateMultiLineSchedule(
+      parsedOrders,
+      personnel,
+      startTimes,
+      priorityMap,
+      showDowntime
+    );
     setScheduled(result);
-  }, [parsedOrders, personnel, startTimes]);
+  }, [parsedOrders, personnel, startTimes, priorityMap, showDowntime]);
 
-  // ハンドラー関数に適合した関数を定義
-  const handlePersonnelChange = (key: string, value: number) => {
-    setPersonnel((prev) => ({ ...prev, [key]: value }));
+  const handleAddRow = (department: string) => {
+    const newRow: ParsedOrder = {
+      department: department as Department,
+      pattern: '' as Pattern,
+      batchName: '',
+      item: 0,
+      pieces: 0,
+      line: 0,
+      manuallyAdded: true,
+      people: 1,
+      productivity: 1,
+      category: '',
+      date: '',
+    };
+    setParsedOrders((prev) => [...prev, newRow]);
   };
 
-  const handleStartTimesChange = (dept: string, index: number, value: number) => {
-    setStartTimes((prev) => {
-      const updated = { ...prev };
-      updated[dept] = [...(updated[dept] || [])];
-      updated[dept][index] = value;
-      return updated;
-    });
+  const onDeleteRow = (index: number) => {
+    setParsedOrders((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -50,18 +60,49 @@ export default function PlannerPage() {
       <ParsedResultEditor
         data={parsedOrders}
         onUpdate={setParsedOrders}
+        onAddRow={handleAddRow}
+        onDeleteRow={onDeleteRow}
         personnel={personnel}
-        setPersonnel={setPersonnel}
+        setPersonnel={(key: string, value: number) =>
+          setPersonnel((prev) => ({ ...prev, [key]: value }))
+        }
         startTimes={startTimes}
-        setStartTimes={setStartTimes}
+        setStartTimes={(dept: string, index: number, value: number) => {
+          const updated = [...(startTimes[dept] || [])];
+          updated[index] = value;
+          setStartTimes((prev) => ({ ...prev, [dept]: updated }));
+        }}
       />
+
       <DepartmentLineEditor
         personnel={personnel}
-        onPersonnelChange={handlePersonnelChange}
+        onPersonnelChange={(key: string, value: number) =>
+          setPersonnel((prev) => ({ ...prev, [key]: value }))
+        }
         startTimes={startTimes}
-        onStartTimesChange={handleStartTimesChange}
+        onStartTimesChange={(dept: string, index: number, value: number) => {
+          const updated = [...(startTimes[dept] || [])];
+          updated[index] = value;
+          setStartTimes((prev) => ({ ...prev, [dept]: updated }));
+        }}
       />
-      <ScheduleGrid data={scheduled} />
+
+      <PriorityEditor
+        department="DAS"
+        value={priorityMap['DAS'] ?? []}
+        onChange={(updated) =>
+          setPriorityMap((prev) => ({ ...prev, DAS: updated }))
+        }
+      />
+
+      <button
+        onClick={() => setShowDowntime((prev) => !prev)}
+        className="bg-blue-500 text-white px-3 py-1 rounded"
+      >
+        {showDowntime ? '17:00〜18:00稼働停止解除' : '17:00〜18:00稼働停止'}
+      </button>
+
+      <ScheduleGrid data={scheduled} showDowntime={showDowntime} />
     </main>
   );
 }
