@@ -15,7 +15,7 @@ export type ParsedOrder = {
   line: number; // DAS1, DAS2 などを識別
   time?: number; // 作業時間
   personnel?:number;
-  item?:number;
+  item?:number | undefined;
   manuallyAdded?: boolean;
 };
 
